@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package com.proto.userservice;
+
+option java_multiple_files = true;
+option java_outer_classname = "UserServiceProto";
+option java_package = "org.example.firstsession.proto";
+
+message GetUserDetailRequest {
+  string user_id = 1;
+}
+
+message GetUserDetailResponse {
+  string user_id = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message CreateNewUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateNewUserResponse {
+  string user_id = 1;
+}
+
+service UserService {
+  rpc GetUserDetail (GetUserDetailRequest) returns (GetUserDetailResponse);
+  rpc CreateNewUser (CreateNewUserRequest) returns (CreateNewUserResponse);
+}

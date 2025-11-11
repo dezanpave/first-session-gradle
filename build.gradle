@@ -3,6 +3,10 @@ plugins {
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
     id("org.flywaydb.flyway") version "11.16.0"
+    id 'com.google.protobuf' version '0.9.3'
+}
+ext {
+    springGrpcVersion = "0.12.0"
 }
 
 group = 'org.example'
@@ -28,6 +32,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
@@ -40,9 +45,48 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
     implementation 'io.github.resilience4j:resilience4j-ratelimiter:2.1.0'
+    implementation "com.google.protobuf:protobuf-java:4.32.1"
+    implementation "io.grpc:grpc-protobuf:1.76.0"
+    implementation "io.grpc:grpc-stub:1.76.0"
+    implementation "io.grpc:grpc-netty-shaded:1.76.0"
+
+}
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.grpc:spring-grpc-dependencies:$springGrpcVersion"
+    }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.32.1"
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.76.0"
+        }
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {}
+            }
+            task.plugins {
+                grpc {}
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "$buildDir/generated/source/proto/main/java"
+            srcDirs += "$buildDir/generated/source/proto/main/grpc"
+        }
+    }
+}

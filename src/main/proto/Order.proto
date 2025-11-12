@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package com.proto.orderservice;
+
+option java_multiple_files = true;
+option java_outer_classname = "OrderServiceProto";
+option java_package = "org.example.firstsession.proto";
+
+message WatchOrderRequest {
+  string order_id = 1;
+}
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_PENDING = 1;
+  ORDER_STATUS_SHIPPED = 2;
+  ORDER_STATUS_DELIVERED = 3;
+}
+
+enum OrderAction {
+  ORDER_ACTION_UNSPECIFIED = 0;
+  ORDER_ACTION_UPDATE = 1;
+  ORDER_ACTION_CANCEL = 2;
+  ORDER_ACTION_CONFIRM = 3;
+}
+
+enum OrderResult {
+  ORDER_RESULT_UNSPECIFIED = 0;
+  ORDER_RESULT_ACCEPTED = 1;
+  ORDER_RESULT_REJECTED = 2;
+}
+
+message WatchOrderResponse {
+  string order_id = 1;
+  OrderStatus status = 2;
+  string timestamp = 3;
+}
+
+message PlaceOrderRequest {
+  string product_id = 1;
+  int32 quantity = 2;
+  float price = 3;
+}
+
+message PlaceOrderResponse {
+  string order_id = 1;
+  bool success = 2;
+}
+
+message SyncOrderRequest {
+  string order_id = 1;
+  OrderAction action = 2;
+}
+
+message OrderSyncResponse {
+  string order_id = 1;
+  OrderResult result = 2;
+}
+
+service OrderService {
+  // Server Streaming: client watches order updates in real-time
+  rpc WatchOrder (WatchOrderRequest) returns (stream WatchOrderResponse);
+
+  // Client Streaming: client sends multiple items, server places one order
+  rpc PlaceOrder (stream PlaceOrderRequest) returns (PlaceOrderResponse);
+
+  // Bidirectional Streaming: live order sync between systems
+  rpc SyncOrder (stream SyncOrderRequest) returns (stream OrderSyncResponse);
+}

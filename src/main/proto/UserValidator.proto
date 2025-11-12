@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package com.proto.uservalidator;
+
+option java_multiple_files = true;
+option java_outer_classname = "UserValidatorProto";
+option java_package = "org.example.firstsession.proto";
+
+service ValidationService {
+  rpc ValidateProfile(ValidationRequest) returns (ValidationResponse);
+}
+
+message ValidationRequest {
+  string request_id = 1; // For logging
+  UserProfile profile = 2; // A nested message!
+}
+
+message UserProfile {
+  string username = 1;         // Rule: must be 5-20 chars
+  string email = 2;            // Rule: must contain "@"
+  int32 age = 3;               // Rule: must be 18 or older
+  Address shipping_address = 4; // Another nested message
+  repeated Phone phones = 5;   // A list! Rule: must have at least 1 "MOBILE"
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string zip_code = 3; // Rule: must be 5 digits
+}
+
+enum PhoneType {
+  PHONE_TYPE_UNSPECIFIED = 0;
+  MOBILE = 1;
+  HOME = 2;
+  WORK = 3;
+}
+
+message Phone {
+  PhoneType type = 1;
+  string number = 2; // Rule: must be 10-15 digits
+}
+
+message ValidationResponse {
+  bool is_valid = 1;
+  repeated string errors = 2; // A list of human-readable error messages
+}
